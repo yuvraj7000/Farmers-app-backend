@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
+import 'dotenv/config'; // Ensure dotenv is configured
+
 // Converts local file information to base64
 function fileToGenerativePart(path, mimeType) {
   return {
@@ -11,13 +13,17 @@ function fileToGenerativePart(path, mimeType) {
 }
 
 async function run(localFilePath) {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-  const prompt = "Write an advertising jingle showing how the product in the first image could solve the problems shown in the second two images.";
+  const prompt = `
+    Identify the disease in the plant image and provide two solutions:
+    1. Regular solution
+    2. Organic solution
+  `;
 
   const imageParts = [
-      fileToGenerativePart(localFilePath, "image/jpeg"),
+    fileToGenerativePart(localFilePath, "image/jpeg"),
   ];
 
   const generatedContent = await model.generateContent([prompt, ...imageParts]);
