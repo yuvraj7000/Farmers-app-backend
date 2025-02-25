@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
-import 'dotenv/config'; // Ensure dotenv is configured
+
 
 // Converts local file information to base64
 function fileToGenerativePart(path, mimeType) {
