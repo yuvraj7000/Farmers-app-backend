@@ -1,4 +1,4 @@
-import run from "../utils/gemini.js";
+import analyzePlant from "../utils/gemini.js";
 import fs from "fs";
 
 const plantDiagnose = async (req , res) => {
@@ -6,7 +6,7 @@ const plantDiagnose = async (req , res) => {
     const imageLocalPath = req.file?.path
     if(!imageLocalPath) return res.status(400).json({message: 'Image is required'});
     try {
-        const diagnose = await run(imageLocalPath, language);
+        const diagnose = await analyzePlant(imageLocalPath, language);
     
         // Delete the local file
         fs.unlink(imageLocalPath, (err) => {
