@@ -14,7 +14,8 @@ const plantDiagnose = async (req , res) => {
             console.error("Failed to delete local file:", err);
           }
         });
-    
+        console.log("imageLocalPath : ", imageLocalPath )
+        console.log("Diagnosis:", diagnose);
         return res.status(200).json({ message: 'Diagnose successful', diagnose });
       } catch (error) {
         console.error("Error during diagnosis:", error);
