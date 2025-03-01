@@ -57,14 +57,14 @@ async function analyzePlant(localFilePath, language) {
     console.log("Raw response:", textResponse);
     
     // Clean the response by removing markdown code blocks
-    const cleanedResponse = textResponse
-      .replace(/```json/g, '') 
-      .replace(/```/g, '')      
-      .trim();
+    // const cleanedResponse = textResponse
+    //   .replace(/```json/g, '') 
+    //   .replace(/```/g, '')      
+    //   .trim();
   
-    // Attempt to parse the JSON response
-    const parsedResponse = JSON.parse(cleanedResponse);
-    return parsedResponse;
+    // // Attempt to parse the JSON response
+    // const parsedResponse = JSON.parse(cleanedResponse);
+    return textResponse;
   } catch (error) {
     console.error("Error processing the image:", error);
     return { error: "Failed to process the image or parse the response." };
