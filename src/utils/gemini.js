@@ -20,7 +20,7 @@ const prompt = `
 You are an expert in plant pathology and agriculture. Given an image of a plant, analyze it to determine whether it shows signs of disease.
 If the image is valid and contains a diseased plant, identify the disease and provide a structured response in JSON format with the following details:
 
-response language: {language}.
+response language: ${language}.
 Description: A brief explanation of the disease and its symptoms.
 Regular Solution: Effective conventional methods to treat the disease.
 Organic Solution: Natural or organic remedies for farmers who prefer eco-friendly treatments.
