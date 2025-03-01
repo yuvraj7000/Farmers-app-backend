@@ -11,30 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
 const promptTemplate = `
-You are an expert in plant pathology and agriculture. Given an image of a plant, analyze it to determine whether it shows signs of disease.
-If the image is valid and contains a diseased plant, identify the disease and provide a structured response in JSON format with the following details:
-
-response language: {language}.
-Description: A brief explanation of the disease and its symptoms.
-Regular Solution: Effective conventional methods to treat the disease.
-Organic Solution: Natural or organic remedies for farmers who prefer eco-friendly treatments.
-Important Notes: Additional precautions, prevention tips, or crucial information regarding the disease.
-
-Output Format:
-{{
-  "cure": true,
-  "Description": "Brief explanation of the disease and its symptoms.",
-  "symptoms": ["symptoms of the disease"],
-  "Regular solution": ["Regular Solutions"],
-  "Organic solution": ["Organic solutions"],
-  "important notes": ["Relevant precaution or prevention tip"]
-}}
-
-If the image is invalid or does not contain a plant, then return:
-{{
-  "cure": false
-}}
-Ensure the response is accurate, concise, and informative for farmers seeking practical solutions.
+tell something about content in this image
 `;
 
 // Create a LangChain prompt template.
