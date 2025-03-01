@@ -51,6 +51,7 @@ Ensure the response is accurate, concise, and informative for farmers seeking pr
   
   const response = await generatedContent.response.text();
   console.log(response);
+  
   return response;
 }
 
