@@ -32,7 +32,7 @@ Output Format:
   "Description": "Brief explanation of the disease and its symptoms.",
   "symptoms": ["symptoms of the disease"],
   "Regular solution": ["Regular Solutions"],
-  "chemical solution": ["Chemical solutions"],
+  "chemical solution": ["Chemical present in the solution"],
   "Organic solution": ["Organic solutions"],
   "important notes": ["Relevant precaution or prevention tip"]
 }}
