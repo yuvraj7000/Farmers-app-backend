@@ -31,6 +31,7 @@ Output Format:
   "cure": true,
   "Description": "Brief explanation of the disease and its symptoms.",
   "symptoms": ["symptoms of the disease"],
+  "cause": ["cause of the disease"],
   "Regular solution": ["Regular Solutions"],
   "chemical solution": ["Chemical present in the solution"],
   "Organic solution": ["Organic solutions"],
