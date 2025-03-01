@@ -38,7 +38,8 @@ Output Format:
 
 If the image is invalid or does not contain a plant, then return:
 {{
-  "cure": false
+  "cure": false,
+  "remarks": "this plant looks healthy or this not a plant image , this image is about { what is in the image } or this image is not clear enough to diagnose"
 }}
 Ensure the response is accurate, concise, and informative for farmers seeking practical solutions.
   `;
@@ -51,7 +52,7 @@ Ensure the response is accurate, concise, and informative for farmers seeking pr
   
   const response = await generatedContent.response.text();
   console.log(response);
-  
+
   return response;
 }
 
