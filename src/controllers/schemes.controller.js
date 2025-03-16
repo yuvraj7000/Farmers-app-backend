@@ -68,8 +68,7 @@ const getTranslationSchemes = async (req, res) => {
 
     const query =`
         SELECT *
-        FROM schemes_subsidies s
-        INNER JOIN scheme_translations t ON s.id = t.scheme_id
+        FROM scheme_translations t
         WHERE ( t.scheme_id= $1)
       `;
 
@@ -101,6 +100,7 @@ const getTranslationSchemes = async (req, res) => {
         funding_amount: row.funding_amount,
         image_url: row.image_url,
         name: row.name,
+        language_code: row.language_code,
         description: row.description,
         benefits: parseJSON(row.benefits),
         eligibility: parseJSON(row.eligibility),
