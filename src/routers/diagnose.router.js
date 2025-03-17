@@ -1,4 +1,4 @@
-import { plantDiagnose } from "../controllers/diagnose.comtroller.js";
+import { plantDiagnose } from "../controllers/diagnose.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { Router } from "express";
 
