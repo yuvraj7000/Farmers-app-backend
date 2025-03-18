@@ -1,4 +1,4 @@
-import { addCrop, getCropDetails, deleteCrop, updateCropPara, deleteCropPara, updateCrop, addCropPara } from "../controllers/crop.controller.js";
+import { addCrop, getCropDetails, deleteCrop, updateCropPara, deleteCropPara, updateCrop, addCropPara, getAllCrops } from "../controllers/crop.controller.js";
 import { Router } from "express";
 
 const crop_router = Router();
@@ -10,6 +10,7 @@ crop_router.route("/update").post(updateCrop);
 crop_router.route("/delete_para").post(deleteCropPara);
 crop_router.route("/update_para").post(updateCropPara);
 crop_router.route("/add_para").post(addCropPara);
+crop_router.route("/all").get(getAllCrops);
 
 
 export default crop_router;

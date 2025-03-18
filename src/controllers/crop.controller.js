@@ -244,7 +244,23 @@ const addCrop = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   };
+
+  const getAllCrops = async (req, res) => {
+    try {
+        
+    
+        // Fetch crop details
+        const cropQuery = `SELECT id, name, image_url FROM crops `;
+        const cropResult = await pool.query(cropQuery);
+    
+    
+        res.status(200).json({ crops: cropResult.rows });
+      } catch (err) {
+        console.error("Error fetching crop details:", err);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
   
 
 
-export { addCrop , getCropDetails, deleteCrop,updateCropPara,deleteCropPara,updateCrop,addCropPara};
+export { addCrop , getCropDetails, deleteCrop,updateCropPara,deleteCropPara,updateCrop,addCropPara, getAllCrops};
