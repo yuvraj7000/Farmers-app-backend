@@ -2,32 +2,32 @@ import pool from "../utils/database_connection.js";
 import { Expo } from "expo-server-sdk";
 
 const addFcmToken = async (req, res) => {
-    try {
-      const { fcm_token, district } = req.body;
-  
+  try {
+      const { fcm_token, district, language = 'en' } = req.body;
+
       if (!fcm_token) {
-        return res.status(400).json({ error: "FCM token is required" });
+          return res.status(400).json({ error: "FCM token is required" });
       }
-  
+
       const query = `
-        INSERT INTO user_fcm_tokens (fcm_token, district) 
-        VALUES ($1, $2) 
-        ON CONFLICT (fcm_token) 
-        DO UPDATE SET district = EXCLUDED.district, updated_at = CURRENT_TIMESTAMP 
-        RETURNING *;
+          INSERT INTO user_fcm_tokens (fcm_token, district, language) 
+          VALUES ($1, $2, $3) 
+          ON CONFLICT (fcm_token) 
+          DO UPDATE SET district = EXCLUDED.district, language = EXCLUDED.language, updated_at = CURRENT_TIMESTAMP 
+          RETURNING *;
       `;
-  
-      const result = await pool.query(query, [fcm_token, district || null]);
-  
+
+      const result = await pool.query(query, [fcm_token, district || null, language || 'en']);
+
       res.status(201).json({
-        message: "FCM token added successfully",
-        token: result.rows[0],
+          message: "FCM token added successfully",
+          token: result.rows[0],
       });
-    } catch (err) {
+  } catch (err) {
       console.error("Error adding FCM token:", err);
       res.status(500).json({ error: "Internal server error" });
-    }
-  };
+  }
+};
 
   const deleteFcmToken = async (req, res) => {
     try {
@@ -72,61 +72,67 @@ const addFcmToken = async (req, res) => {
 
   const sendPushNotification = async (req, res) => {
     try {
-      // 1️⃣ Get the notification title & body from the request
-      const { title, message } = req.body;
-  
-      if (!title || !message) {
-        return res.status(400).json({ error: "Title and message are required" });
-      }
-  
-      // 2️⃣ Fetch all FCM tokens from the database
-      const tokenQuery = `SELECT fcm_token FROM user_fcm_tokens;`;
-      const tokenResult = await pool.query(tokenQuery);
-      
-      if (tokenResult.rows.length === 0) {
-        return res.status(404).json({ error: "No FCM tokens found" });
-      }
-  
-      // 3️⃣ Extract FCM tokens
-      const tokens = tokenResult.rows.map(row => row.fcm_token);
-  
-      // 4️⃣ Initialize Expo SDK
-      let expo = new Expo();
-  
-      // 5️⃣ Create notification messages
-      let messages = [];
-      for (let token of tokens) {
-        if (!Expo.isExpoPushToken(token)) {
-          console.warn(`Invalid token: ${token}`);
-          continue;
+        const { title, message, district = 'all', language = 'en' } = req.body;
+
+        if (!title || !message) {
+            return res.status(400).json({ error: "Title and message are required" });
         }
-  
-        messages.push({
-          to: token,
-          sound: "default",
-          title: title,
-          body: message,
-          data: { message },
-        });
-      }
-  
-      // 6️⃣ Send notifications in chunks
-      let chunks = expo.chunkPushNotifications(messages);
-      let tickets = [];
+
+        let tokenQuery = `
+            SELECT fcm_token FROM user_fcm_tokens
+            WHERE language = $1
+        `;
+        let queryParams = [language];
+
+        if (district !== 'all') {
+            tokenQuery += ` AND district = $2`;
+            queryParams.push(district);
+        }
+
+        const tokenResult = await pool.query(tokenQuery, queryParams);
+        
+        if (tokenResult.rows.length === 0) {
+            return res.status(404).json({ error: "No matching FCM tokens found" });
+        }
+
       
-      for (let chunk of chunks) {
-        let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-        tickets.push(...ticketChunk);
-      }
-  
-      res.status(200).json({
-        message: "Push notifications sent successfully",
-        tickets,
-      });
+        const tokens = tokenResult.rows.map(row => row.fcm_token);
+
+        let expo = new Expo();
+
+        
+        let messages = tokens
+            .filter(token => Expo.isExpoPushToken(token))  
+            .map(token => ({
+                to: token,
+                sound: "default",
+                title,
+                body: message,
+                data: { message },
+            }));
+
+        if (messages.length === 0) {
+            return res.status(400).json({ error: "No valid Expo push tokens found" });
+        }
+
+        // Send notifications in chunks
+        let chunks = expo.chunkPushNotifications(messages);
+        let tickets = [];
+
+        for (let chunk of chunks) {
+            let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            tickets.push(...ticketChunk);
+        }
+
+        res.status(200).json({
+            message: "Push notifications sent successfully",
+            tickets,
+        });
+
     } catch (err) {
-      console.error("Error sending push notification:", err);
-      res.status(500).json({ error: "Internal server error" });
+        console.error("Error sending push notification:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-  };
+};
 
   export { addFcmToken, deleteFcmToken, getAllFcmTokens, sendPushNotification };
