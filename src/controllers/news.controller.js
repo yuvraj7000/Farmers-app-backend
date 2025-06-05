@@ -49,6 +49,7 @@ export const addNews = async (req, res) => {
       language_code,
       title,
       content,
+      youtube_url, // Added youtube_url
     } = req.body;
 
     if (!language_code || !title || !content) {
@@ -56,12 +57,12 @@ export const addNews = async (req, res) => {
     }
 
     const query = `
-      INSERT INTO news (date, image_url, source, language_code, title, content)
-      VALUES (COALESCE($1, CURRENT_DATE), $2, $3, $4, $5, $6)
+      INSERT INTO news (date, image_url, source, language_code, title, content, youtube_url)
+      VALUES (COALESCE($1, CURRENT_DATE), $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
 
-    const values = [date, image_url, source, language_code, title, content];
+    const values = [date, image_url, source, language_code, title, content, youtube_url];
 
     const result = await pool.query(query, values);
 
@@ -75,7 +76,7 @@ export const addNews = async (req, res) => {
 // Update news by ID
 export const updateNews = async (req, res) => {
   try {
-    const { id, date, image_url, source, language_code, title, content } = req.body;
+    const { id, date, image_url, source, language_code, title, content, youtube_url } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: "News id is required for update" });
@@ -91,12 +92,13 @@ export const updateNews = async (req, res) => {
         language_code = COALESCE($5, language_code),
         title = COALESCE($6, title),
         content = COALESCE($7, content),
+        youtube_url = COALESCE($8, youtube_url),
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
     `;
 
-    const values = [id, date, image_url, source, language_code, title, content];
+    const values = [id, date, image_url, source, language_code, title, content, youtube_url];
 
     const result = await pool.query(query, values);
 
