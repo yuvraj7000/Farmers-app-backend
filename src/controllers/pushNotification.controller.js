@@ -4,21 +4,56 @@ import admin from "../utils/firebase.js";
 // Add FCM token
 const addFcmToken = async (req, res) => {
   try {
-    const { fcm_token, district, language = 'en' } = req.body;
+    const { fcm_token, district, language } = req.body;
 
     if (!fcm_token) {
       return res.status(400).json({ error: "FCM token is required" });
     }
 
-    const query = `
-      INSERT INTO user_fcm_tokens (fcm_token, district, language) 
-      VALUES ($1, $2, $3) 
-      ON CONFLICT (fcm_token) 
-      DO UPDATE SET district = EXCLUDED.district, language = EXCLUDED.language, updated_at = CURRENT_TIMESTAMP 
-      RETURNING *;
-    `;
+    // First check if the token exists
+    const checkQuery = `SELECT * FROM user_fcm_tokens WHERE fcm_token = $1`;
+    const checkResult = await pool.query(checkQuery, [fcm_token]);
+    
+    let query;
+    let params;
+    
+    if (checkResult.rows.length > 0) {
+      // Token exists, only update the fields that are provided
+      const updates = [];
+      params = [fcm_token];
+      let paramIndex = 2;
+      
+      if (district !== undefined) {
+        updates.push(`district = $${paramIndex}`);
+        params.push(district);
+        paramIndex++;
+      }
+      
+      if (language !== undefined) {
+        updates.push(`language = $${paramIndex}`);
+        params.push(language);
+        paramIndex++;
+      }
+      
+      updates.push(`updated_at = CURRENT_TIMESTAMP`);
+      
+      query = `
+        UPDATE user_fcm_tokens 
+        SET ${updates.join(', ')} 
+        WHERE fcm_token = $1
+        RETURNING *;
+      `;
+    } else {
+      // Token doesn't exist, insert new record
+      query = `
+        INSERT INTO user_fcm_tokens (fcm_token, district, language) 
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+      params = [fcm_token, district || null, language || 'en'];
+    }
 
-    const result = await pool.query(query, [fcm_token, district || null, language || 'en']);
+    const result = await pool.query(query, params);
 
     res.status(201).json({
       message: "FCM token added successfully",
@@ -29,6 +64,8 @@ const addFcmToken = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 
 // Delete FCM token
 const deleteFcmToken = async (req, res) => {
