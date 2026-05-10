@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
+import { GoogleGenAI } from "@google/genai";
 
 
 // Converts local file information to base64
@@ -12,10 +13,11 @@ function fileToGenerativePart(path, mimeType) {
   };
 }
 
-async function run(localFilePath, language) {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+async function analyzePlant(localFilePath, language) {
 
+  const ai = new GoogleGenAI({});
+
+  
 const prompt = `
 You are an expert in plant pathology and agriculture. Given an image of a plant, analyze it to determine whether it shows signs of disease.
 If the image is valid and contains a diseased plant, identify the disease and provide a structured response in JSON format with the following details:
@@ -46,16 +48,32 @@ If the image is invalid or does not contain a plant, then return:
 Ensure the response is accurate, concise, and informative for farmers seeking practical solutions.
   `;
 
-  const imageParts = [
-    fileToGenerativePart(localFilePath, "image/jpeg"),
-  ];
+  const base64ImageFile = fs.readFileSync(localFilePath, {
+  encoding: "base64",
+});
 
-  const generatedContent = await model.generateContent([prompt, ...imageParts]);
+
+  const contents = [
+  {
+    inlineData: {
+      mimeType: "image/jpeg",
+      data: base64ImageFile,
+    },
+  },
+  { text: prompt },
+];
   
-  const response = await generatedContent.response.text();
-  console.log(response);
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: contents,
+  });
 
-  return response;
+  const jsonString = response.text.replace(/```json|```/g, '');
+  const diagnoseObject = JSON.parse(jsonString);
+  console.log(diagnoseObject);
+
+
+  return diagnoseObject;
 }
 
-export default run;
+export default analyzePlant;
