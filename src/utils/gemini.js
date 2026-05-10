@@ -68,12 +68,10 @@ Ensure the response is accurate, concise, and informative for farmers seeking pr
     contents: contents,
   });
 
-  const jsonString = response.text.replace(/```json|```/g, '');
-  const diagnoseObject = JSON.parse(jsonString);
-  console.log(diagnoseObject);
+  console.log(response.text);
 
 
-  return diagnoseObject;
+  return response.text;
 }
 
 export default analyzePlant;
